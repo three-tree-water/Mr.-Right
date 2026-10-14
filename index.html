@@ -4,242 +4,4262 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>關於伴侶的一百個問題 ｜ 內在對焦探索手冊</title>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <style>
     :root {
-      --bg: #F8F6F1; --card: #FFFFFF; --border: #E5DFC5; --border-subtle: #EFEBE0;
-      --text: #2C2623; --muted: #79716B; --primary: #8E5B3D; --primary-hover: #72462E;
-      --primary-light: #F4ECE4; --accent: #B07D58; --danger: #BA3C3C;
-      --danger-light: #FDF0F0; --success: #2E7D32; --radius: 10px;
+      --bg: #F8F6F1;
+      --card: #FFFFFF;
+      --border: #E5DFC5;
+      --border-subtle: #EDE7DC;
+      --text: #2C2623;
+      --muted: #79716B;
+      --primary: #8E5B3D;
+      --primary-hover: #72462E;
+      --primary-light: #F4ECE4;
+      --accent: #B07D58;
+      --danger: #BA3C3C;
+      --danger-light: #FDF0F0;
+      --radius: 8px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-      background: var(--bg); color: var(--text); line-height: 1.6; padding-bottom: 90px;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 60px;
     }
+
+    /* 頂部導航欄 (無匯入匯出) */
     header {
-      position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.96);
-      backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
     .header-box {
-      max-width: 1240px; margin: 0 auto; padding: 12px 20px;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .header-title h1 { font-size: 1.15rem; font-weight: 700; color: var(--text); }
-    .header-title p { font-size: 0.8rem; color: var(--muted); margin-top: 1px; }
-    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px;
-      font-size: 0.82rem; font-weight: 500; border-radius: 6px; border: 1px solid var(--border);
-      background: #FFFFFF; color: var(--text); cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+    .header-title h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.5px;
     }
-    .btn:hover { background: var(--primary-light); border-color: var(--accent); color: var(--primary); }
-    .btn-primary { background: var(--primary); color: #FFFFFF; border-color: var(--primary); font-weight: 600; }
-    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: #FFFFFF; }
-    .progress-bar { height: 3px; background: #E9E3D8; width: 100%; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); width: 0%; transition: width 0.25s; }
+    .header-title p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    <!-- 功能按鈕組 (Excel 下載 / JSON 備份 / JSON 匯入) -->
+<div class="action-btn-group">
+  <button type="button" class="tool-btn" onclick="exportJSON()">📥 備份 JSON</button>
+  <label class="tool-btn">
+    📤 匯入 JSON
+    <input type="file" id="jsonFileInput" accept=".json" style="display:none;" onchange="importJSON(event)">
+  </label>
+  <button type="button" class="tool-btn tool-btn-primary" onclick="exportExcel()">💾 下載填答 Excel (.xlsx)</button>
+</div>
+
+<!-- 按鈕樣式 (如果原有樣式沒有可直接使用) -->
+<style>
+  .action-btn-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .tool-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px solid #DCD5C9;
+    background: #FFFFFF;
+    color: #2C2623;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .tool-btn:hover {
+    background: #F4ECE4;
+    border-color: #B07D58;
+    color: #8E5B3D;
+  }
+  .tool-btn-primary {
+    background: #8E5B3D;
+    color: #FFFFFF;
+    border-color: #8E5B3D;
+    font-weight: 600;
+  }
+  .tool-btn-primary:hover {
+    background: #72462E;
+    color: #FFFFFF;
+  }
+  #actionToast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #2C2623;
+    color: #FFFFFF;
+    padding: 9px 16px;
+    border-radius: 6px;
+    font-size: 0.84rem;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+</style>
+<div id="actionToast"></div>
+
+    /* 主架構：左側索引 + 右側題目 */
     .main-wrap {
-      max-width: 1240px; margin: 20px auto; padding: 0 20px;
-      display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start;
+      max-width: 1280px;
+      margin: 24px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 28px;
+      align-items: start;
     }
-    @media (max-width: 880px) {
-      .main-wrap { grid-template-columns: 1fr; }
-      .sidebar { display: none; }
+    @media (max-width: 900px) {
+      .main-wrap {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        display: none;
+      }
     }
+
+    /* 左側固定導航索引 */
     .sidebar {
-      position: sticky; top: 76px; background: #FFFFFF; border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-      max-height: calc(100vh - 100px); overflow-y: auto;
+      position: sticky;
+      top: 80px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
     }
-    .sidebar-title { font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-bottom: 10px; }
-    .nav-list { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+    .sidebar-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 8px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-left: 3px solid var(--primary);
+    }
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
     .nav-list a {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 7px 10px; font-size: 0.84rem; color: var(--text); text-decoration: none;
-      border-radius: 6px; transition: all 0.15s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.15s ease;
     }
-    .nav-list a:hover, .nav-list a.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
-    .nav-badge { font-size: 0.72rem; padding: 2px 6px; border-radius: 10px; background: #EFE8DF; color: var(--muted); }
-    .nav-list a.active .nav-badge { background: var(--primary); color: #FFFFFF; }
-    .side-stats {
-      margin-top: 14px; padding: 12px; background: #FAF7F2;
-      border: 1px dashed var(--accent); border-radius: 8px; font-size: 0.78rem; line-height: 1.5;
+    .nav-list a:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
     }
-    .side-stats strong { color: var(--primary); font-size: 0.85rem; }
+    .nav-sub {
+      list-style: none;
+      margin-left: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-left: 1px dashed #D8D2C5;
+      padding-left: 6px;
+      margin-top: 2px;
+      margin-bottom: 4px;
+    }
+    .nav-sub a {
+      font-size: 0.78rem;
+      padding: 4px 8px;
+      color: var(--muted);
+    }
+    .nav-sub a:hover {
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+    .nav-badge {
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: #EFE8DF;
+      color: var(--muted);
+    }
+
+    /* 右側主卡片 */
     .hero-card {
-      background: #FFFFFF; border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 20px 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 26px;
+      margin-bottom: 24px;
     }
     .hero-quote {
-      font-size: 1.02rem; font-weight: 600; color: var(--primary);
-      border-left: 4px solid var(--accent); padding-left: 12px; margin-bottom: 6px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--primary);
+      border-left: 4px solid var(--accent);
+      padding-left: 14px;
+      margin-bottom: 8px;
+      line-height: 1.5;
     }
-    .hero-desc { font-size: 0.85rem; color: var(--muted); }
+    .hero-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
     .section-card {
-      background: #FFFFFF; border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 22px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); scroll-margin-top: 80px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 28px;
+      scroll-margin-top: 85px;
     }
     .section-head {
-      display: flex; justify-content: space-between; align-items: baseline;
-      border-bottom: 2px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 2px solid var(--border-subtle);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
-    .section-head h2 { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .section-head h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .section-head p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
     .section-badge {
-      font-size: 0.78rem; background: var(--primary-light); color: var(--primary);
-      padding: 3px 8px; border-radius: 12px; font-weight: 600;
+      font-size: 0.8rem;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 600;
     }
-    .subgroup { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; background: #FFF; }
-    .subgroup-head {
-      background: #FAF7F2; padding: 10px 16px; font-size: 0.92rem; font-weight: 700;
-      color: var(--primary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;
+
+    /* 子分類標題 */
+    .subgroup-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: #FAF7F2;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin: 22px 0 14px 0;
+      border-left: 4px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      scroll-margin-top: 85px;
     }
-    .subgroup-head:hover { background: #F3ECE2; }
-    .subgroup-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-    .subgroup.collapsed .subgroup-body { display: none; }
-    .q-card { border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px 16px; background: #FFF; }
-    .q-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
-    .q-id { font-size: 0.76rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 7px; border-radius: 4px; }
-    .q-id.ng { color: var(--danger); background: var(--danger-light); }
-    .q-title { font-size: 0.93rem; font-weight: 600; color: var(--text); }
-    .fields-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
-    .field-item { display: flex; flex-direction: column; gap: 4px; }
-    .field-item label { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
-    input[type="text"], textarea {
-      width: 100%; padding: 7px 10px; font-size: 0.86rem; border: 1px solid #DCD5C9;
-      border-radius: 6px; background: #FDFBF9; color: var(--text); font-family: inherit; outline: none;
+
+    /* 題目卡片排版 */
+    .q-card {
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px 18px;
+      background: #FFFFFF;
+      margin-bottom: 14px;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    input[type="text"]:focus, textarea:focus {
-      background: #FFFFFF; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(176,125,88,0.18);
+    .q-card:hover {
+      border-color: #D3C9BD;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
-    textarea { min-height: 55px; resize: vertical; line-height: 1.45; }
-    .pills { display: flex; gap: 5px; flex-wrap: wrap; }
-    .pills label {
-      display: inline-block; padding: 4px 11px; font-size: 0.78rem; border: 1px solid #DCD5C9;
-      border-radius: 16px; cursor: pointer; color: var(--muted); background: #FFFFFF; user-select: none;
+    .q-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 12px;
     }
-    .pills input { position: absolute; opacity: 0; pointer-events: none; }
-    .pills input:checked + label { background: var(--primary); color: #FFFFFF; border-color: var(--primary); font-weight: 600; }
-    .macro-box { border: 1px solid var(--border-subtle); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
-    .macro-box h3 { font-size: 1rem; color: var(--primary); margin-bottom: 4px; }
-    .macro-box p { font-size: 0.82rem; color: var(--muted); margin-bottom: 8px; }
-    .macro-box textarea { min-height: 100px; }
-    .inspire-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-bottom: 16px; }
-    .inspire-table th, .inspire-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
-    .inspire-table th { background: #FAF7F2; color: var(--primary); }
-    .chip { display: inline-block; font-size: 0.72rem; padding: 2px 6px; background: #FFF; border: 1px solid #DFD9CE; border-radius: 10px; cursor: pointer; margin: 2px; }
-    .chip:hover { background: var(--primary-light); color: var(--primary); border-color: var(--accent); }
-    .chip.ng:hover { background: #FDE8E8; color: var(--danger); border-color: var(--danger); }
-    .bottom-dock {
-      position: fixed; bottom: 0; left: 0; right: 0; background: #FFFFFF; border-top: 1px solid var(--border);
-      padding: 10px 20px; z-index: 99; display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 8px; box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+    .q-id {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
     }
-    .dock-status { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
-    .modal-backdrop {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
-      z-index: 1000; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(2px);
+    .q-id.ng {
+      color: var(--danger);
+      background: var(--danger-light);
     }
-    .modal-backdrop.open { display: flex; }
-    .modal-box {
-      background: #FFFFFF; border-radius: 10px; max-width: 900px; width: 100%;
-      max-height: 85vh; overflow-y: auto; padding: 20px 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    .q-title {
+      font-size: 0.96rem;
+      font-weight: 600;
+      color: var(--text);
     }
-    .modal-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 14px; }
-    #appToast {
-      position: fixed; bottom: 70px; right: 20px; background: #2C2623; color: #FFF;
-      padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; z-index: 2000; opacity: 0; transition: 0.2s; pointer-events: none;
+
+    /* 輸入表單網格 */
+    .fields-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .field-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .field-item label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 0.88rem;
+      border: 1px solid #DCD5C9;
+      border-radius: 6px;
+      background: #FDFBF9;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      background: #FFFFFF;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(176,125,88,0.18);
+    }
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    /* 開放深度書寫區 */
+    .macro-box {
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      background: #FFFFFF;
+      scroll-margin-top: 85px;
+    }
+    .macro-box h3 {
+      font-size: 1.05rem;
+      color: var(--primary);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .macro-box p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .macro-box textarea {
+      min-height: 110px;
+    }
+
+    /* 人格特質表格 */
+    .inspire-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      margin-bottom: 22px;
+      background: #FFFFFF;
+    }
+    .inspire-table th, .inspire-table td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .inspire-table th {
+      background: #FAF7F2;
+      color: var(--primary);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .chip {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      background: #FFFFFF;
+      border: 1px solid #DFD9CE;
+      border-radius: 12px;
+      margin: 2px;
+      color: var(--text);
+    }
+    .chip.ng {
+      background: #FFF8F8;
+      border-color: #F0D0D0;
+      color: #903030;
+    }
+
+    /* 列印排版最佳化 */
+    @media print {
+      header, .sidebar { display: none; }
+      body { background: #FFFFFF; padding: 0; }
+      .main-wrap { max-width: 100%; margin: 0; padding: 0; grid-template-columns: 1fr; }
+      .section-card { border: none; padding: 0; page-break-after: always; }
+      .q-card { break-inside: avoid; border: 1px solid #CCC; }
     }
   </style>
 </head>
 <body>
 
+  <!-- 頂部標題列 -->
   <header>
     <div class="header-box">
       <div class="header-title">
         <h1>🌿 關於伴侶的一百個問題 ｜ 內在對焦探索手冊</h1>
-        <p>寫條件不是許願，而是為自己的辨識雷達對焦</p>
-      </div>
-      <div class="btn-group">
-        <button class="btn" onclick="openModal('inspireModal')">💡 人格靈感庫</button>
-        <button class="btn" onclick="exportJSON()">📥 備份 JSON</button>
-        <label class="btn" style="margin:0;">📤 匯入 JSON<input type="file" accept=".json" style="display:none;" onchange="importJSON(event)"></label>
-        <button class="btn btn-primary" onclick="exportExcel()">💾 下載填答 Excel</button>
+        <p>「寫條件不是許願，而是為自己的辨識雷達對焦」</p>
       </div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="globalProgress"></div></div>
   </header>
 
+  <!-- 主佈局架構 -->
   <div class="main-wrap">
+
+    <!-- 左側快速索引導航 -->
     <aside class="sidebar">
-      <div class="sidebar-title">📑 題目導航目錄</div>
+      <div class="sidebar-title">📑 題目導航索引</div>
       <ul class="nav-list">
-        <li><a href="#sec-1" class="active"><span>一、外型偏好</span><span class="nav-badge" id="badge-1">0/14</span></a></li>
-        <li><a href="#sec-2"><span>二、特質個性</span><span class="nav-badge" id="badge-2">0/33</span></a></li>
-        <li><a href="#sec-3"><span>三、相處方式</span><span class="nav-badge" id="badge-3">0/52</span></a></li>
-        <li><a href="#sec-4"><span>四、生活習慣</span><span class="nav-badge" id="badge-4">0/49</span></a></li>
-        <li><a href="#sec-5"><span>五～九、宏觀面向</span><span class="nav-badge" id="badge-5">0/5</span></a></li>
-        <li><a href="#sec-inspire"><span>💡 靈感辭典庫</span></a></li>
+        <li><a href="#sec-intro"><span>總覽說明</span></a></li>
+        <li><a href="#sec-1"><span>一、外型偏好</span><span class="nav-badge">14 題</span></a></li>
+        <li>
+          <a href="#sec-2"><span>二、特質與個性</span><span class="nav-badge">33 題</span></a>
+          <ul class="nav-sub">
+            <li><a href="#sec-2-desired">🌟 期望特質 (13項)</a></li>
+            <li><a href="#sec-2-ng">🚫 避雷特質 (20項)</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#sec-3"><span>三、相處方式</span><span class="nav-badge">52 題</span></a>
+          <ul class="nav-sub">
+            <li><a href="#sec-3-1">1. 爭吵和衝突 (6題)</a></li>
+            <li><a href="#sec-3-2">2. 壓力和支持 (5題)</a></li>
+            <li><a href="#sec-3-3">3. 情緒表達 (5題)</a></li>
+            <li><a href="#sec-3-4">4. 信任和坦誠 (5題)</a></li>
+            <li><a href="#sec-3-5">5. 支持夢想 (5題)</a></li>
+            <li><a href="#sec-3-6">6. 親密與愛 (5題)</a></li>
+            <li><a href="#sec-3-7">7. 承諾與未來 (5題)</a></li>
+            <li><a href="#sec-3-8">8. 家庭和生活 (6題)</a></li>
+            <li><a href="#sec-3-9">9. 日常互動 (5題)</a></li>
+            <li><a href="#sec-3-10">10. 危機與挑戰 (5題)</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#sec-4"><span>四、生活習慣嗜好</span><span class="nav-badge">49 題</span></a>
+          <ul class="nav-sub">
+            <li><a href="#sec-4-1">1. 起居習慣 (4題)</a></li>
+            <li><a href="#sec-4-2">2. 飲食習慣 (5題)</a></li>
+            <li><a href="#sec-4-3">3. 家務分工 (6題)</a></li>
+            <li><a href="#sec-4-4">4. 金錢觀念 (5題)</a></li>
+            <li><a href="#sec-4-5">5. 個人空間 (5題)</a></li>
+            <li><a href="#sec-4-6">6. 興趣娛樂 (5題)</a></li>
+            <li><a href="#sec-4-7">7. 運動健康 (5題)</a></li>
+            <li><a href="#sec-4-8">8. 工作平衡 (5題)</a></li>
+            <li><a href="#sec-4-9">9. 旅行探索 (4題)</a></li>
+            <li><a href="#sec-4-10">10. 節日儀式感 (5題)</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#sec-5"><span>五、宏觀深度面向</span><span class="nav-badge">5 題</span></a>
+          <ul class="nav-sub">
+            <li><a href="#sec-5-1">五、經濟和事業</a></li>
+            <li><a href="#sec-5-2">六、親密與性需求</a></li>
+            <li><a href="#sec-5-3">七、家庭背景文化</a></li>
+            <li><a href="#sec-5-4">八、氣質質感形象</a></li>
+            <li><a href="#sec-5-5">九、其他重要事項</a></li>
+          </ul>
+        </li>
+        <li><a href="#sec-inspire"><span>💡 人格靈感辭庫</span></a></li>
       </ul>
-      <div class="side-stats">
-        <div>總完成度：<strong id="sidePercent">0%</strong> (<span id="sideCount">0</span>/153)</div>
-        <div style="margin-top:6px; color:var(--muted); font-size:0.73rem;">✨ 內容即時自動保存於本機。</div>
-      </div>
     </aside>
 
+    <!-- 右側填答內容 -->
     <main>
-      <div class="hero-card">
+
+      <!-- 引言說明 -->
+      <section class="hero-card" id="sec-intro">
         <div class="hero-quote">「寫條件不是許願，而是為自己的辨識雷達對焦。世上沒有完美的人，只有彼此適合、能夠磨合的人。」</div>
-        <div class="hero-desc">依據真實期待誠實填寫完畢，下一個找到的伴侶通常會符合 70～80% 的條件。填寫完成可隨時匯出 Excel (.xlsx) 或備份。</div>
-      </div>
+        <div class="hero-desc">
+          通常你有完整寫完，下一個找到的伴侶幾乎會符合 70～80% 的條件。請放鬆身心、誠實面對自己的真實期待與底線。<br>
+          <strong>全手冊共 153 項題目已完整呈現於下方</strong>，可利用左側索引隨時跳轉填寫。
+        </div>
+      </section>
 
+      <!-- 一、外型偏好探索 (共 14 題) -->
       <section class="section-card" id="sec-1">
-        <div class="section-head"><h2>一、外型偏好探索</h2><span class="section-badge">共 14 題</span></div>
-        <div id="render-sec1"></div>
+        <div class="section-head">
+          <div>
+            <h2>一、外型偏好探索</h2>
+            <p>探索你對伴侶外觀特徵的偏好、吸引你的原因與接受彈性</p>
+          </div>
+          <span class="section-badge">共 14 題</span>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#01</span>
+            <span class="q-title">你喜歡怎麼樣的髮型？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#02</span>
+            <span class="q-title">你喜歡怎麼樣的眉毛？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#03</span>
+            <span class="q-title">你喜歡怎麼樣的眼睛？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#04</span>
+            <span class="q-title">你喜歡怎麼樣的鼻子？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#05</span>
+            <span class="q-title">你喜歡怎麼樣的臉頰？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#06</span>
+            <span class="q-title">你喜歡怎麼樣的嘴唇和嘴型？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#07</span>
+            <span class="q-title">你喜歡怎麼樣的臉型？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#08</span>
+            <span class="q-title">你喜歡怎麼樣的皮膚？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#09</span>
+            <span class="q-title">你喜歡怎麼樣的耳朵</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#10</span>
+            <span class="q-title">你喜歡怎麼樣的體型（體態）</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#11</span>
+            <span class="q-title">你喜歡怎麼樣的四肢？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#12</span>
+            <span class="q-title">你喜歡怎麼樣的手掌？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#13</span>
+            <span class="q-title">你喜歡怎麼樣的腳掌？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">#14</span>
+            <span class="q-title">你喜歡怎麼樣的牙齒？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的理想具體想像</label>
+              <input type="text" placeholder="例：微捲深褐色、清爽俐落好整理...">
+            </div>
+            <div class="field-item">
+              <label>吸引你的點 / 在意原因</label>
+              <input type="text" placeholder="例：感覺溫柔、看起來有精神...">
+            </div>
+            <div class="field-item">
+              <label>接受彈性</label>
+              <select>
+                <option value="">請選擇接受彈性</option>
+                <option value="必備">必備 (一定要有)</option>
+                <option value="加分">加分 (有的話很棒)</option>
+                <option value="隨緣">隨緣 (不強求)</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </section>
 
+      <!-- 二、特質與個性對焦 (共 33 題) -->
       <section class="section-card" id="sec-2">
-        <div class="section-head"><h2>二、特質與個性對焦</h2><span class="section-badge">共 33 題</span></div>
-        <div class="subgroup">
-          <div class="subgroup-head" onclick="toggleGroup(this)"><span>🌟 【期望特質清單】（共 13 項）</span><span>展開 / 收合 ▾</span></div>
-          <div class="subgroup-body" id="render-sec2-d"></div>
+        <div class="section-head">
+          <div>
+            <h2>二、特質與個性對焦</h2>
+            <p>釐清最渴望的積極特質清單 (13項) 與絕不能踩到的避雷 NG 底線 (20項)</p>
+          </div>
+          <span class="section-badge">共 33 題</span>
         </div>
-        <div class="subgroup">
-          <div class="subgroup-head" onclick="toggleGroup(this)"><span>🚫 【避雷 / NG 特質清單】（共 20 項）</span><span>展開 / 收合 ▾</span></div>
-          <div class="subgroup-body" id="render-sec2-ng"></div>
+
+        <div class="subgroup-title" id="sec-2-desired">🌟 【期望特質清單】請選出 10～13 項你最渴望伴侶具備的特質，並具體說明原因</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 01</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 02</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 03</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 04</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 05</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 06</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 07</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 08</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 09</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 10</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 11</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 12</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">特質 13</span>
+            <span class="q-title">渴望伴侶具備的特質</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>期望特質名稱</label>
+              <input type="text" placeholder="例：情緒穩定、善解人意、正直誠懇...">
+            </div>
+            <div class="field-item">
+              <label>期待看到的具體行為 / 情境</label>
+              <input type="text" placeholder="例：發生摩擦時能先深呼吸好好說話...">
+            </div>
+            <div class="field-item">
+              <label>為什麼這項特質對你如此重要？</label>
+              <input type="text" placeholder="例：能給我高度心理安全感...">
+            </div>
+            <div class="field-item">
+              <label>自己是否也具備？</label>
+              <select>
+                <option value="">請選擇自身狀態</option>
+                <option value="是">是 (我也具備)</option>
+                <option value="學習中">學習中 (努力培養中)</option>
+                <option value="尋求互補">尋求互補 (希望對方引領)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-2-ng">🚫 【避雷 / NG 特質清單】請選出 10～20 項你最不希望對方擁有的特質，誠實面對個人底線</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 01</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 02</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 03</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 04</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 05</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 06</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 07</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 08</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 09</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 10</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 11</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 12</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 13</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 14</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 15</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 16</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 17</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 18</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 19</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id ng">NG 20</span>
+            <span class="q-title">最不希望對方擁有的特質 (NG 避雷)</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>避雷特質名稱 (NG)</label>
+              <input type="text" placeholder="例：冷暴力、慣性說謊、控制欲強...">
+            </div>
+            <div class="field-item">
+              <label>最令你無法接受的具體行為</label>
+              <input type="text" placeholder="例：生氣就已讀不回幾天、摔東西...">
+            </div>
+            <div class="field-item">
+              <label>不能接受的原因 / 過往踩雷經歷</label>
+              <input type="text" placeholder="例：會讓我陷入內耗與焦慮恐懼...">
+            </div>
+            <div class="field-item">
+              <label>容忍度底線</label>
+              <select>
+                <option value="">請選擇容忍底線</option>
+                <option value="零容忍">零容忍 (踩到底線立即結束)</option>
+                <option value="視情況">視情況 (看情境與態度)</option>
+                <option value="可溝通">可溝通 (願意磨合改善)</option>
+              </select>
+            </div>
+          </div>
         </div>
       </section>
 
+      <!-- 三、相處方式探索 (共 10 個核心主題 · 52 題) -->
       <section class="section-card" id="sec-3">
-        <div class="section-head"><h2>三、相處方式探索</h2><span class="section-badge">共 52 題</span></div>
-        <div id="render-sec3"></div>
+        <div class="section-head">
+          <div>
+            <h2>三、相處方式探索</h2>
+            <p>10 大核心主題：爭吵、壓力、情緒、信任、夢想、親密、承諾、家庭、日常、危機</p>
+          </div>
+          <span class="section-badge">共 52 題</span>
+        </div>
+
+        <div class="subgroup-title" id="sec-3-1">▶ 1、關於爭吵和衝突 (6 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">1-1</span>
+            <span class="q-title">如果今天發生爭吵，你如何表達自己的感受？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">1-2</span>
+            <span class="q-title">當雙方意見不同時，你希望怎麼解決？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">1-3</span>
+            <span class="q-title">你會希望在爭吵後多久主動和你溝通？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">1-4</span>
+            <span class="q-title">當發生意見相左時，應該要先冷靜還是立即討論？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">1-5</span>
+            <span class="q-title">如果感到被忽略和誤解，你希望對方怎麼表達？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">1-6</span>
+            <span class="q-title">你希望對方是如何面對爭吵的？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-3-2">▶ 2、關於壓力和支持 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">2-1</span>
+            <span class="q-title">當感到壓力很大時，你希望對方如何支持自己</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">2-2</span>
+            <span class="q-title">你會希望對方主動的問你的需求，還是自行調整？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">2-3</span>
+            <span class="q-title">面對困難時，你傾向個人面對還是一起面對？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">2-4</span>
+            <span class="q-title">你如何看待自己的壓力？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">2-5</span>
+            <span class="q-title">當感到壓力的時候，你希望對方怎麼幫助你？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-3-3">▶ 3、關於情緒表達 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-1</span>
+            <span class="q-title">當自己感到開心時，你喜歡怎麼樣分享快樂？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-2</span>
+            <span class="q-title">當自己感到失落或低潮時，你希望怎麼表達自己？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-3</span>
+            <span class="q-title">當雙方情緒不穩定的時候，你希望怎麼做比較好呢？以及如何避免？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-4</span>
+            <span class="q-title">當自己情緒低潮的時候，你喜歡怎麼樣被幫助？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-5</span>
+            <span class="q-title">你喜歡多頻繁的情緒和深度交流？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-3-4">▶ 4、關於信任和坦誠 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">4-1</span>
+            <span class="q-title">當自己在關係中犯錯了，你希望自己怎麼和對方討論？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">4-2</span>
+            <span class="q-title">你認為在關係之中，信任應該如何維護？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">4-3</span>
+            <span class="q-title">如果自己讓對方失望了，你希望對方是什麼反應？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">4-4</span>
+            <span class="q-title">當自己不想談論某些話題時，你希望對方怎麼處理？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">4-5</span>
+            <span class="q-title">當關係有一些界線和條件時，你如何看待？ex:一對一關係，不能有第三人。</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-3-5">▶ 5、關於支持夢想和目標 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">5-1</span>
+            <span class="q-title">當為自己的目標努力時，你希望對方如何支持自己？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">5-2</span>
+            <span class="q-title">當雙方理想有衝突時，你希望怎麼處理這個議題？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">5-3</span>
+            <span class="q-title">你是否希望定期討論彼此的長期計劃？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">5-4</span>
+            <span class="q-title">當自己在專注事業和夢想時，你希望對方如何調整自己的期待？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">5-5</span>
+            <span class="q-title">你會如何評估，雙方是有在為彼此的幸福努力的？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-3-6">▶ 6、關於親密和愛的表達 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">6-1</span>
+            <span class="q-title">你喜歡怎麼樣被表達愛意，無論是行動或是言語上的？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">6-2</span>
+            <span class="q-title">當你感到親密感下降，你想要怎麼樣升溫？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">6-3</span>
+            <span class="q-title">在關係之中什麼行為最讓你感到被愛？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">6-4</span>
+            <span class="q-title">如果在性需求上有一些不同，你希望對方怎麼面對和處理？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">6-5</span>
+            <span class="q-title">你認為新鮮感重要嗎？需要維護嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-3-7">▶ 7、關於承諾和未來 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">7-1</span>
+            <span class="q-title">如果彼此的未來計畫不一致，你喜歡這段關係可以怎麼前進？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">7-2</span>
+            <span class="q-title">什麼樣的承諾，你認為對關係而已是最重要的？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">7-3</span>
+            <span class="q-title">當你面對無法預期的改變和挑戰時，你想要怎麼樣面對？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">7-4</span>
+            <span class="q-title">你希望在關係之中，如何去做重大決定？你理想中的討論方式是？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">7-5</span>
+            <span class="q-title">你希望關係中的彼此對未來計劃有多一致？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-3-8">▶ 8、關於家庭和生活 (6 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-1</span>
+            <span class="q-title">你會想要和對方的家庭生活嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-2</span>
+            <span class="q-title">你會如何協調各自家庭的習慣和責任？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-3</span>
+            <span class="q-title">如果對於金錢的使用看法不同時，你希望可以怎麼討論？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-4</span>
+            <span class="q-title">你有自己的家規嗎？有哪些？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-5</span>
+            <span class="q-title">你會想要有小孩嗎？要有哪些準備？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-6</span>
+            <span class="q-title">你對於家的想像是什麼？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-3-9">▶ 9、關於日常互動 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">9-1</span>
+            <span class="q-title">你喜歡在日常生活中怎麼樣維繫感情？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">9-2</span>
+            <span class="q-title">當你很忙的時候，你喜歡怎麼樣維繫感情？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">9-3</span>
+            <span class="q-title">你覺得每天最重要的交流時間是什麼時候？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">9-4</span>
+            <span class="q-title">你如何看待關係中分享生活瑣事的必要性？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">9-5</span>
+            <span class="q-title">你認為什麼樣的小事，可以讓感情穩固或加深？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-3-10">▶ 10、關於危機和挑戰 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">10-1</span>
+            <span class="q-title">當你面對生活或人生的重要挑戰時，你希望獲得什麼幫助？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">10-2</span>
+            <span class="q-title">如果有一天感情出現危機，你希望可以怎麼修復？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">10-3</span>
+            <span class="q-title">當你面對外界壓力時，你希望對方怎麼保護自己？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">10-4</span>
+            <span class="q-title">如果你在關係之中無法解決爭議，你會怎麼樣向外求助？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">10-5</span>
+            <span class="q-title">你認為如何面對失敗和困難，才能讓關係更堅固和緊密？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的期望與回答</label>
+              <textarea placeholder="填寫你的核心期待與偏好做法..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>理由與核心價值觀</label>
+              <textarea placeholder="背後原因與你在意的點..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>那自己辦得到嗎？/ 磨合共識</label>
+              <textarea placeholder="自我反思與磨合空間..."></textarea>
+            </div>
+          </div>
+        </div>
       </section>
 
+      <!-- 四、生活習慣與嗜好探索 (共 10 個生活面向 · 49 題) -->
       <section class="section-card" id="sec-4">
-        <div class="section-head"><h2>四、生活習慣與嗜好探索</h2><span class="section-badge">共 49 題</span></div>
-        <div id="render-sec4"></div>
+        <div class="section-head">
+          <div>
+            <h2>四、生活習慣與嗜好探索</h2>
+            <p>10 大生活面向：起居、飲食、家務、金錢、社交、休閒、健康、工作、旅行、節日</p>
+          </div>
+          <span class="section-badge">共 49 題</span>
+        </div>
+
+        <div class="subgroup-title" id="sec-4-1">▶ 1、起居習慣 (4 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">1-1</span>
+            <span class="q-title">你的生活作息如何？需要跟你一致嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">1-2</span>
+            <span class="q-title">當你需要獨處時，你希望伴侶支持這個需求嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">1-3</span>
+            <span class="q-title">你的生活很規律嗎？對方也需要一致嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">1-4</span>
+            <span class="q-title">你能接受相處的時候一直使用手機嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-4-2">▶ 2、飲食習慣 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">2-1</span>
+            <span class="q-title">你的飲食習慣如何？伴侶也要一樣嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">2-2</span>
+            <span class="q-title">你喜歡自己做飯還是外食，你的伴侶會影響你的選擇嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">2-3</span>
+            <span class="q-title">你是否有飲食上的禁忌？伴侶需要配合嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">2-4</span>
+            <span class="q-title">你是否能接受對方有不同的飲食習慣？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">2-5</span>
+            <span class="q-title">你會喜歡跟對方一起下廚嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-4-3">▶ 3、家務分工 (6 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-1</span>
+            <span class="q-title">你對居住整潔要求有多高？伴侶需要一致嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-2</span>
+            <span class="q-title">你會希望同居還是分居？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-3</span>
+            <span class="q-title">你喜歡怎麼樣分擔家務？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-4</span>
+            <span class="q-title">當你不想做家事或拖延時，你喜歡對方怎麼辦？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-5</span>
+            <span class="q-title">你對居住環境有佈置的需求嗎？有多講究？伴侶需要配合嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">3-6</span>
+            <span class="q-title">你會分享或共同規劃行程表給伴侶嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-4-4">▶ 4、金錢觀念與消費習慣 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">4-1</span>
+            <span class="q-title">你會想要有共同帳戶或財務規劃嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">4-2</span>
+            <span class="q-title">你對儲蓄和花費的比例如何拿捏？對方是否需要相似？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">4-3</span>
+            <span class="q-title">你喜歡精打細算還是隨心所欲的花費，伴侶的習慣會影響你嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">4-4</span>
+            <span class="q-title">你會想要和伴侶共同購買大型物件嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">4-5</span>
+            <span class="q-title">你能接受伴侶有超出預期的金錢管理方式嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-4-5">▶ 5、個人空間與社交習慣 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">5-1</span>
+            <span class="q-title">你需要多少個人空間，伴侶如果也需要呢？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">5-2</span>
+            <span class="q-title">你會和對方分享朋友圈嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">5-3</span>
+            <span class="q-title">你喜歡什麼樣的場合，對方需要和你一致嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">5-4</span>
+            <span class="q-title">你可以讓對方單獨的和朋友社交嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">5-5</span>
+            <span class="q-title">你會花多少精力和伴侶相處？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-4-6">▶ 6、興趣與娛樂 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">6-1</span>
+            <span class="q-title">你會想要有共同興趣嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">6-2</span>
+            <span class="q-title">當你的興趣和對方不符合時，你喜歡對方怎麼處理？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">6-3</span>
+            <span class="q-title">你會想要對方嘗試你的愛好嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">6-4</span>
+            <span class="q-title">如果你們的興趣完全不相同的話，可以嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">6-5</span>
+            <span class="q-title">你喜歡如何安排約會？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-4-7">▶ 7、運動與健康 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">7-1</span>
+            <span class="q-title">你是否有健康的生活習慣？對方需要一起嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">7-2</span>
+            <span class="q-title">如果對方不重視健康，你可以接受嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">7-3</span>
+            <span class="q-title">你喜歡運動或戶外活動嗎？希望對方一起嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">7-4</span>
+            <span class="q-title">你對自己的健康有什麼要求，對方也要一致嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">7-5</span>
+            <span class="q-title">當你有一些運動目標時，需要伴侶提供協助嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-4-8">▶ 8、工作與生活平衡 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-1</span>
+            <span class="q-title">你對工作和生活平衡的要求是什麼呢？伴侶需要有相似的想法嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-2</span>
+            <span class="q-title">如果你工作繁忙，無時間陪伴伴侶可以接受嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-3</span>
+            <span class="q-title">你會願意在工作上配合彼此的生活時間嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-4</span>
+            <span class="q-title">你可以接受對方經常要加班或長期出差嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">8-5</span>
+            <span class="q-title">你希望伴侶在工作上給予協助嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-4-9">▶ 9、旅行與探索 (4 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">9-1</span>
+            <span class="q-title">你喜歡怎麼樣的旅行或旅遊方式，伴侶要配合嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">9-2</span>
+            <span class="q-title">你喜歡旅行之中或之後一起分享所見所聞嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">9-3</span>
+            <span class="q-title">你喜歡嘗試新鮮事物嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">9-4</span>
+            <span class="q-title">你平常有在做個人探索嗎？伴侶也有需要嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subgroup-title" id="sec-4-10">▶ 10、節日與儀式感 (5 題)</div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">10-1</span>
+            <span class="q-title">你喜歡怎麼過節？喜好過哪幾個節日？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">10-2</span>
+            <span class="q-title">你是否有特別在意的節日或紀念日？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">10-3</span>
+            <span class="q-title">你會想和對方的家人一起過節日嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">10-4</span>
+            <span class="q-title">如果伴侶不重視節日，可以接受嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-head">
+            <span class="q-id">10-5</span>
+            <span class="q-title">你喜歡節日的時候充滿驚喜和浪漫嗎？</span>
+          </div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label>我的習慣與期望</label>
+              <textarea placeholder="你的生活真實狀態與對伴侶期待..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>背後原因 / 在意的點</label>
+              <textarea placeholder="為什麼重視這個生活細節..."></textarea>
+            </div>
+            <div class="field-item">
+              <label>自己能配合嗎？/ 磨合彈性</label>
+              <textarea placeholder="若對方習慣不同，自己的彈性界線..."></textarea>
+            </div>
+          </div>
+        </div>
       </section>
 
+      <!-- 五～九、宏觀面向深度對焦 (開放式書寫) -->
       <section class="section-card" id="sec-5">
-        <div class="section-head"><h2>五～九、宏觀面向深度對焦</h2><span class="section-badge">共 5 題</span></div>
-        <div id="render-sec5"></div>
+        <div class="section-head">
+          <div>
+            <h2>五～九、宏觀面向深度對焦 (開放式書寫)</h2>
+            <p>針對經濟、性與親密、家庭文化、整體氣質與質感形象，進行多維度的深度描述</p>
+          </div>
+          <span class="section-badge">共 5 題</span>
+        </div>
+
+        <div class="macro-box" id="sec-5-1">
+          <h3>五、經濟和事業</h3>
+          <p>引導提問：請描述你希望對方在工作中的狀態和到達的位子以及對於工作的態度如何？（請盡量多方面的描述）</p>
+          <textarea placeholder="請在此處深入寫下你的觀察、期待與畫面..."></textarea>
+        </div>
+
+        <div class="macro-box" id="sec-5-2">
+          <h3>六、親密與性需求</h3>
+          <p>引導提問：請描述你希望對方在親密與性需求上如何滿足自己的需求。</p>
+          <textarea placeholder="請在此處深入寫下你的觀察、期待與畫面..."></textarea>
+        </div>
+
+        <div class="macro-box" id="sec-5-3">
+          <h3>七、家庭背景與文化差異</h3>
+          <p>引導提問：請描述你希望對方的家庭狀況，包含兄弟姐妹，財務狀況，父母健康等等</p>
+          <textarea placeholder="請在此處深入寫下你的觀察、期待與畫面..."></textarea>
+        </div>
+
+        <div class="macro-box" id="sec-5-4">
+          <h3>八、氣質與質感形象</h3>
+          <p>引導提問：請針對你以上的回答，描述一下這大概會是一個什麼樣子的人，和他相處會是一個什麼樣的感覺，他會是一個什樣的質感。</p>
+          <textarea placeholder="請在此處深入寫下你的觀察、期待與畫面..."></textarea>
+        </div>
+
+        <div class="macro-box" id="sec-5-5">
+          <h3>九、其他重要但尚未提及的事項</h3>
+          <p>引導提問：請將認為重要但尚未提及的事情寫下來。</p>
+          <textarea placeholder="請在此處深入寫下你的觀察、期待與畫面..."></textarea>
+        </div>
       </section>
 
+      <!-- 人格特質與心理學詞彙靈感庫 -->
       <section class="section-card" id="sec-inspire">
-        <div class="section-head"><h2>💡 人格特質與心理學詞彙靈感庫</h2><span class="section-badge">參考詞庫</span></div>
-        <div id="render-inspire"></div>
+        <div class="section-head">
+          <div>
+            <h2>💡 人格特質與心理學詞彙靈感庫</h2>
+            <p>五大人格心理學構面 (Big Five Model) 與七大維度伴侶特質辭典</p>
+          </div>
+          <span class="section-badge">參考詞庫</span>
+        </div>
+
+        <div class="subgroup-title">一、五大人格心理學構面 (Big Five Model)</div>
+        <div style="overflow-x:auto;">
+          <table class="inspire-table">
+            <thead>
+              <tr>
+                <th style="width:16%;">構面名稱</th>
+                <th style="width:24%;">英文縮寫</th>
+                <th style="width:30%;">核心心理定義</th>
+                <th>代表性特質表現</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr>
+                <td><strong>外向型</strong></td>
+                <td>Extraversion (E)</td>
+                <td>描述個人的社交活躍度、愛說話、能量導向與主導性</td>
+                <td>健談、果斷、精力充沛、熱情、活潑、樂觀、具社交感染力</td>
+              </tr>
+
+              <tr>
+                <td><strong>親和型</strong></td>
+                <td>Agreeableness (A)</td>
+                <td>描述個人的良好本質、合作性、同理心與信任程度</td>
+                <td>友善、體貼、真誠、包容、利他、善解人意、好相處、溫暖</td>
+              </tr>
+
+              <tr>
+                <td><strong>盡責型</strong></td>
+                <td>Conscientiousness (C)</td>
+                <td>描述個人的自律程度、責任感、有條理與成就取向</td>
+                <td>有責任心、謹慎有條理、堅忍不拔、守信、做事有始有終、自律</td>
+              </tr>
+
+              <tr>
+                <td><strong>沉穩型</strong></td>
+                <td>Emotional Stability (S/N)</td>
+                <td>描述個人情緒調節能力、抗壓性與心態穩定度</td>
+                <td>情緒平穩、遇事沉著、客觀理性、抗壓性強、給人安定感 (反之為神經質、易怒多疑)</td>
+              </tr>
+
+              <tr>
+                <td><strong>開放型</strong></td>
+                <td>Openness to Exp (O)</td>
+                <td>描述個人的想像力、藝術審美敏感度與智慧好奇心</td>
+                <td>富想像力、具深刻洞察力、聰慧、獨立思考、開放包容、樂於探索新事物</td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <div class="subgroup-title">二、七大維度伴侶特質辭典 (渴望清單 vs 避雷清單)</div>
+        <div style="overflow-x:auto;">
+          <table class="inspire-table">
+            <thead>
+              <tr>
+                <th style="width:16%;">維度分類</th>
+                <th style="width:18%;">核心領域</th>
+                <th style="width:33%;">積極渴望特質 (正向參考詞庫)</th>
+                <th style="width:33%;">消極避雷特質 (NG 參考詞庫)</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr>
+                <td><strong>1. 性格特質</strong></td>
+                <td>日常個性與心態</td>
+                <td><span class="chip">熱情</span><span class="chip">開朗</span><span class="chip">樂觀</span><span class="chip">自信</span><span class="chip">可靠</span><span class="chip">誠懇</span><span class="chip">幽默</span><span class="chip">機智</span><span class="chip">靈活</span><span class="chip">負責</span><span class="chip">果斷</span><span class="chip">勇敢</span><span class="chip">勤奮</span><span class="chip">耐心</span><span class="chip">專注</span><span class="chip">體貼</span><span class="chip">成熟</span><span class="chip">穩重</span><span class="chip">有魅力</span><span class="chip">親切</span><span class="chip">樂於助人</span><span class="chip">溫暖</span><span class="chip">友善</span><span class="chip">正直</span><span class="chip">有條理</span><span class="chip">真誠</span><span class="chip">大方</span><span class="chip">謙和</span><span class="chip">踏實</span><span class="chip">知足</span><span class="chip">寬厚</span></td>
+                <td><span class="chip ng">冷漠</span><span class="chip ng">消極</span><span class="chip ng">悲觀</span><span class="chip ng">固執</span><span class="chip ng">自卑</span><span class="chip ng">輕率</span><span class="chip ng">衝動</span><span class="chip ng">怯懦</span><span class="chip ng">浮躁</span><span class="chip ng">懶惰</span><span class="chip ng">偏執</span><span class="chip ng">冷酷</span><span class="chip ng">自私</span><span class="chip ng">粗暴</span><span class="chip ng">輕浮</span><span class="chip ng">嫉妒</span><span class="chip ng">刻薄</span><span class="chip ng">心胸狹窄</span><span class="chip ng">缺乏耐心</span><span class="chip ng">優柔寡斷</span><span class="chip ng">不負責任</span><span class="chip ng">易怒</span><span class="chip ng">情緒化</span><span class="chip ng">壓抑</span><span class="chip ng">難以溝通</span><span class="chip ng">倔強</span><span class="chip ng">霸道</span></td>
+              </tr>
+
+              <tr>
+                <td><strong>2. 智力與思維</strong></td>
+                <td>理解力與觀點認知</td>
+                <td><span class="chip">聰明</span><span class="chip">睿智</span><span class="chip">機智</span><span class="chip">靈敏</span><span class="chip">創造力</span><span class="chip">求知欲</span><span class="chip">學識淵博</span><span class="chip">洞察力強</span><span class="chip">邏輯性</span><span class="chip">判斷力</span><span class="chip">思路清晰</span><span class="chip">記憶力強</span><span class="chip">分析能力</span><span class="chip">獨立思考</span><span class="chip">好奇心</span><span class="chip">領悟力</span><span class="chip">推理能力</span><span class="chip">直覺敏銳</span><span class="chip">遠見</span><span class="chip">哲思</span><span class="chip">知識豐富</span></td>
+                <td><span class="chip ng">愚昧</span><span class="chip ng">短視</span><span class="chip ng">頑固</span><span class="chip ng">遲鈍</span><span class="chip ng">墨守成規</span><span class="chip ng">思維混亂</span><span class="chip ng">缺乏創造力</span><span class="chip ng">草率</span><span class="chip ng">欠缺邏輯</span><span class="chip ng">偏見重</span><span class="chip ng">死板</span><span class="chip ng">膚淺</span><span class="chip ng">思想僵化</span><span class="chip ng">過度天真</span><span class="chip ng">反應遲鈍</span><span class="chip ng">判斷失誤</span></td>
+              </tr>
+
+              <tr>
+                <td><strong>3. 情感表現</strong></td>
+                <td>共情力與情緒流動</td>
+                <td><span class="chip">善良</span><span class="chip">溫柔</span><span class="chip">體貼</span><span class="chip">關愛</span><span class="chip">同情心</span><span class="chip">包容心</span><span class="chip">耐心</span><span class="chip">感性</span><span class="chip">細膩</span><span class="chip">敏感</span><span class="chip">有愛心</span><span class="chip">熱忱</span><span class="chip">憐憫</span><span class="chip">親和力</span><span class="chip">慈悲</span><span class="chip">柔情</span><span class="chip">善於分享情緒</span></td>
+                <td><span class="chip ng">易怒</span><span class="chip ng">焦慮</span><span class="chip ng">冷漠</span><span class="chip ng">嫉妒</span><span class="chip ng">悲傷</span><span class="chip ng">情緒化</span><span class="chip ng">愛抱怨</span><span class="chip ng">壓抑</span><span class="chip ng">不滿</span><span class="chip ng">挑剔</span><span class="chip ng">憤怒</span><span class="chip ng">心機重</span><span class="chip ng">多疑</span><span class="chip ng">報復心</span><span class="chip ng">恐懼</span><span class="chip ng">情緒不穩</span><span class="chip ng">冷暴力</span></td>
+              </tr>
+
+              <tr>
+                <td><strong>4. 社交能力</strong></td>
+                <td>待人接物與邊界感</td>
+                <td><span class="chip">合群</span><span class="chip">健談</span><span class="chip">善解人意</span><span class="chip">說服力</span><span class="chip">協作能力</span><span class="chip">領導力</span><span class="chip">溝通能力</span><span class="chip">幽默感</span><span class="chip">包容心</span><span class="chip">友善</span><span class="chip">可靠</span><span class="chip">開放心態</span><span class="chip">親和力</span><span class="chip">真誠待人</span><span class="chip">拉近關係</span><span class="chip">傾聽能力</span></td>
+                <td><span class="chip ng">孤僻</span><span class="chip ng">社交恐懼</span><span class="chip ng">不信任他人</span><span class="chip ng">冷漠</span><span class="chip ng">不合群</span><span class="chip ng">控制欲強</span><span class="chip ng">情商低</span><span class="chip ng">傲慢</span><span class="chip ng">難以合作</span><span class="chip ng">自視甚高</span><span class="chip ng">過於直接</span><span class="chip ng">表達困難</span><span class="chip ng">討好型人格</span></td>
+              </tr>
+
+              <tr>
+                <td><strong>5. 行為表現</strong></td>
+                <td>自律與生活執行力</td>
+                <td><span class="chip">行動力</span><span class="chip">責任感</span><span class="chip">自律</span><span class="chip">耐力</span><span class="chip">規律性</span><span class="chip">計劃性</span><span class="chip">堅持力</span><span class="chip">高效率</span><span class="chip">務實</span><span class="chip">果斷</span><span class="chip">有條理</span><span class="chip">敬業</span><span class="chip">進取心</span><span class="chip">熱愛學習</span><span class="chip">專注力高</span><span class="chip">善於時間管理</span></td>
+                <td><span class="chip ng">拖延</span><span class="chip ng">懶惰</span><span class="chip ng">敷衍</span><span class="chip ng">衝動</span><span class="chip ng">不守承諾</span><span class="chip ng">反覆無常</span><span class="chip ng">消極怠工</span><span class="chip ng">無目標</span><span class="chip ng">散漫</span><span class="chip ng">容易放棄</span><span class="chip ng">依賴性強</span><span class="chip ng">魯莽</span><span class="chip ng">不專心</span><span class="chip ng">抗拒壓力</span><span class="chip ng">隨波逐流</span><span class="chip ng">固步自封</span></td>
+              </tr>
+
+              <tr>
+                <td><strong>6. 道德價值</strong></td>
+                <td>為人原則與誠信底線</td>
+                <td><span class="chip">誠實</span><span class="chip">公正</span><span class="chip">忠誠</span><span class="chip">同情心</span><span class="chip">謙虛</span><span class="chip">正義感</span><span class="chip">責任心</span><span class="chip">無私</span><span class="chip">感恩</span><span class="chip">守信</span><span class="chip">包容心</span><span class="chip">慈悲</span><span class="chip">敬業精神</span><span class="chip">有原則</span><span class="chip">言行一致</span><span class="chip">值得信任</span><span class="chip">仁慈</span></td>
+                <td><span class="chip ng">貪婪</span><span class="chip ng">自私</span><span class="chip ng">虛偽</span><span class="chip ng">欺騙</span><span class="chip ng">狡詐</span><span class="chip ng">冷酷</span><span class="chip ng">卑鄙</span><span class="chip ng">沒有原則</span><span class="chip ng">反覆無常</span><span class="chip ng">缺乏感恩</span><span class="chip ng">不忠</span><span class="chip ng">不道德</span><span class="chip ng">過於功利</span><span class="chip ng">不擇手段</span><span class="chip ng">喜歡操控他人</span></td>
+              </tr>
+
+              <tr>
+                <td><strong>7. 態度興趣</strong></td>
+                <td>生活熱忱與成長意願</td>
+                <td><span class="chip">熱衷</span><span class="chip">好奇</span><span class="chip">冒險</span><span class="chip">熱愛學習</span><span class="chip">積極投入</span><span class="chip">專注力高</span><span class="chip">愛挑戰</span><span class="chip">開放</span><span class="chip">探索未知</span><span class="chip">與時俱進</span><span class="chip">迎接挑戰</span><span class="chip">樂於助人</span><span class="chip">擁抱改變</span><span class="chip">享受創造</span></td>
+                <td><span class="chip ng">冷漠疏離</span><span class="chip ng">厭倦</span><span class="chip ng">逃避</span><span class="chip ng">抗拒學習</span><span class="chip ng">漠視問題</span><span class="chip ng">不願面對現實</span><span class="chip ng">依賴性高</span><span class="chip ng">過於安逸</span><span class="chip ng">不感興趣</span><span class="chip ng">隨遇而安</span><span class="chip ng">敷衍應付</span><span class="chip ng">不思進取</span></td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
       </section>
+
     </main>
   </div>
 
-  <footer class="bottom-dock">
-    <div class="dock-status"><span class="status-dot"></span><span id="dockStatus">已即時自動儲存至本機</span></div>
-    <div class="btn-group">
-      <button class="btn" onclick="exportHTML()">🌐 匯出含填答的獨立 HTML</button>
-      <button class="btn btn-primary" onclick="exportExcel()">💾 下載填答 Excel (.xlsx)</button>
-    </div>
-  </footer>
-
-  <div class="modal-backdrop" id="inspireModal" onclick="closeModal(event, 'inspireModal')">
-    <div class="
+</body>
+</html>
