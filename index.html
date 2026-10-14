@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>關於伴侶的一百個問題 ｜ 內在對焦探索手冊</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #F8F6F1; --card: #FFFFFF; --border: #E5DFC5; --border-subtle: #EFEBE0;
+      --text: #2C2623; --muted: #79716B; --primary: #8E5B3D; --primary-hover: #72462E;
+      --primary-light: #F4ECE4; --accent: #B07D58; --danger: #BA3C3C;
+      --danger-light: #FDF0F0; --success: #2E7D32; --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.6; padding-bottom: 90px;
+    }
+    header {
+      position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .header-box {
+      max-width: 1240px; margin: 0 auto; padding: 12px 20px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+    }
+    .header-title h1 { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .header-title p { font-size: 0.8rem; color: var(--muted); margin-top: 1px; }
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px;
+      font-size: 0.82rem; font-weight: 500; border-radius: 6px; border: 1px solid var(--border);
+      background: #FFFFFF; color: var(--text); cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+    }
+    .btn:hover { background: var(--primary-light); border-color: var(--accent); color: var(--primary); }
+    .btn-primary { background: var(--primary); color: #FFFFFF; border-color: var(--primary); font-weight: 600; }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: #FFFFFF; }
+    .progress-bar { height: 3px; background: #E9E3D8; width: 100%; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); width: 0%; transition: width 0.25s; }
+    .main-wrap {
+      max-width: 1240px; margin: 20px auto; padding: 0 20px;
+      display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start;
+    }
+    @media (max-width: 880px) {
+      .main-wrap { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+    .sidebar {
+      position: sticky; top: 76px; background: #FFFFFF; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      max-height: calc(100vh - 100px); overflow-y: auto;
+    }
+    .sidebar-title { font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-bottom: 10px; }
+    .nav-list { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+    .nav-list a {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 7px 10px; font-size: 0.84rem; color: var(--text); text-decoration: none;
+      border-radius: 6px; transition: all 0.15s;
+    }
+    .nav-list a:hover, .nav-list a.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+    .nav-badge { font-size: 0.72rem; padding: 2px 6px; border-radius: 10px; background: #EFE8DF; color: var(--muted); }
+    .nav-list a.active .nav-badge { background: var(--primary); color: #FFFFFF; }
+    .side-stats {
+      margin-top: 14px; padding: 12px; background: #FAF7F2;
+      border: 1px dashed var(--accent); border-radius: 8px; font-size: 0.78rem; line-height: 1.5;
+    }
+    .side-stats strong { color: var(--primary); font-size: 0.85rem; }
+    .hero-card {
+      background: #FFFFFF; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .hero-quote {
+      font-size: 1.02rem; font-weight: 600; color: var(--primary);
+      border-left: 4px solid var(--accent); padding-left: 12px; margin-bottom: 6px;
+    }
+    .hero-desc { font-size: 0.85rem; color: var(--muted); }
+    .section-card {
+      background: #FFFFFF; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 22px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); scroll-margin-top: 80px;
+    }
+    .section-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      border-bottom: 2px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 18px;
+    }
+    .section-head h2 { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .section-badge {
+      font-size: 0.78rem; background: var(--primary-light); color: var(--primary);
+      padding: 3px 8px; border-radius: 12px; font-weight: 600;
+    }
+    .subgroup { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; background: #FFF; }
+    .subgroup-head {
+      background: #FAF7F2; padding: 10px 16px; font-size: 0.92rem; font-weight: 700;
+      color: var(--primary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;
+    }
+    .subgroup-head:hover { background: #F3ECE2; }
+    .subgroup-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .subgroup.collapsed .subgroup-body { display: none; }
+    .q-card { border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px 16px; background: #FFF; }
+    .q-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+    .q-id { font-size: 0.76rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 7px; border-radius: 4px; }
+    .q-id.ng { color: var(--danger); background: var(--danger-light); }
+    .q-title { font-size: 0.93rem; font-weight: 600; color: var(--text); }
+    .fields-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+    .field-item { display: flex; flex-direction: column; gap: 4px; }
+    .field-item label { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+    input[type="text"], textarea {
+      width: 100%; padding: 7px 10px; font-size: 0.86rem; border: 1px solid #DCD5C9;
+      border-radius: 6px; background: #FDFBF9; color: var(--text); font-family: inherit; outline: none;
+    }
+    input[type="text"]:focus, textarea:focus {
+      background: #FFFFFF; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(176,125,88,0.18);
+    }
+    textarea { min-height: 55px; resize: vertical; line-height: 1.45; }
+    .pills { display: flex; gap: 5px; flex-wrap: wrap; }
+    .pills label {
+      display: inline-block; padding: 4px 11px; font-size: 0.78rem; border: 1px solid #DCD5C9;
+      border-radius: 16px; cursor: pointer; color: var(--muted); background: #FFFFFF; user-select: none;
+    }
+    .pills input { position: absolute; opacity: 0; pointer-events: none; }
+    .pills input:checked + label { background: var(--primary); color: #FFFFFF; border-color: var(--primary); font-weight: 600; }
+    .macro-box { border: 1px solid var(--border-subtle); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
+    .macro-box h3 { font-size: 1rem; color: var(--primary); margin-bottom: 4px; }
+    .macro-box p { font-size: 0.82rem; color: var(--muted); margin-bottom: 8px; }
+    .macro-box textarea { min-height: 100px; }
+    .inspire-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-bottom: 16px; }
+    .inspire-table th, .inspire-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+    .inspire-table th { background: #FAF7F2; color: var(--primary); }
+    .chip { display: inline-block; font-size: 0.72rem; padding: 2px 6px; background: #FFF; border: 1px solid #DFD9CE; border-radius: 10px; cursor: pointer; margin: 2px; }
+    .chip:hover { background: var(--primary-light); color: var(--primary); border-color: var(--accent); }
+    .chip.ng:hover { background: #FDE8E8; color: var(--danger); border-color: var(--danger); }
+    .bottom-dock {
+      position: fixed; bottom: 0; left: 0; right: 0; background: #FFFFFF; border-top: 1px solid var(--border);
+      padding: 10px 20px; z-index: 99; display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px; box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+    }
+    .dock-status { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 1000; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(2px);
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: #FFFFFF; border-radius: 10px; max-width: 900px; width: 100%;
+      max-height: 85vh; overflow-y: auto; padding: 20px 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 14px; }
+    #appToast {
+      position: fixed; bottom: 70px; right: 20px; background: #2C2623; color: #FFF;
+      padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; z-index: 2000; opacity: 0; transition: 0.2s; pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-box">
+      <div class="header-title">
+        <h1>🌿 關於伴侶的一百個問題 ｜ 內在對焦探索手冊</h1>
+        <p>寫條件不是許願，而是為自己的辨識雷達對焦</p>
+      </div>
+      <div class="btn-group">
+        <button class="btn" onclick="openModal('inspireModal')">💡 人格靈感庫</button>
+        <button class="btn" onclick="exportJSON()">📥 備份 JSON</button>
+        <label class="btn" style="margin:0;">📤 匯入 JSON<input type="file" accept=".json" style="display:none;" onchange="importJSON(event)"></label>
+        <button class="btn btn-primary" onclick="exportExcel()">💾 下載填答 Excel</button>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="globalProgress"></div></div>
+  </header>
+
+  <div class="main-wrap">
+    <aside class="sidebar">
+      <div class="sidebar-title">📑 題目導航目錄</div>
+      <ul class="nav-list">
+        <li><a href="#sec-1" class="active"><span>一、外型偏好</span><span class="nav-badge" id="badge-1">0/14</span></a></li>
+        <li><a href="#sec-2"><span>二、特質個性</span><span class="nav-badge" id="badge-2">0/33</span></a></li>
+        <li><a href="#sec-3"><span>三、相處方式</span><span class="nav-badge" id="badge-3">0/52</span></a></li>
+        <li><a href="#sec-4"><span>四、生活習慣</span><span class="nav-badge" id="badge-4">0/49</span></a></li>
+        <li><a href="#sec-5"><span>五～九、宏觀面向</span><span class="nav-badge" id="badge-5">0/5</span></a></li>
+        <li><a href="#sec-inspire"><span>💡 靈感辭典庫</span></a></li>
+      </ul>
+      <div class="side-stats">
+        <div>總完成度：<strong id="sidePercent">0%</strong> (<span id="sideCount">0</span>/153)</div>
+        <div style="margin-top:6px; color:var(--muted); font-size:0.73rem;">✨ 內容即時自動保存於本機。</div>
+      </div>
+    </aside>
+
+    <main>
+      <div class="hero-card">
+        <div class="hero-quote">「寫條件不是許願，而是為自己的辨識雷達對焦。世上沒有完美的人，只有彼此適合、能夠磨合的人。」</div>
+        <div class="hero-desc">依據真實期待誠實填寫完畢，下一個找到的伴侶通常會符合 70～80% 的條件。填寫完成可隨時匯出 Excel (.xlsx) 或備份。</div>
+      </div>
+
+      <section class="section-card" id="sec-1">
+        <div class="section-head"><h2>一、外型偏好探索</h2><span class="section-badge">共 14 題</span></div>
+        <div id="render-sec1"></div>
+      </section>
+
+      <section class="section-card" id="sec-2">
+        <div class="section-head"><h2>二、特質與個性對焦</h2><span class="section-badge">共 33 題</span></div>
+        <div class="subgroup">
+          <div class="subgroup-head" onclick="toggleGroup(this)"><span>🌟 【期望特質清單】（共 13 項）</span><span>展開 / 收合 ▾</span></div>
+          <div class="subgroup-body" id="render-sec2-d"></div>
+        </div>
+        <div class="subgroup">
+          <div class="subgroup-head" onclick="toggleGroup(this)"><span>🚫 【避雷 / NG 特質清單】（共 20 項）</span><span>展開 / 收合 ▾</span></div>
+          <div class="subgroup-body" id="render-sec2-ng"></div>
+        </div>
+      </section>
+
+      <section class="section-card" id="sec-3">
+        <div class="section-head"><h2>三、相處方式探索</h2><span class="section-badge">共 52 題</span></div>
+        <div id="render-sec3"></div>
+      </section>
+
+      <section class="section-card" id="sec-4">
+        <div class="section-head"><h2>四、生活習慣與嗜好探索</h2><span class="section-badge">共 49 題</span></div>
+        <div id="render-sec4"></div>
+      </section>
+
+      <section class="section-card" id="sec-5">
+        <div class="section-head"><h2>五～九、宏觀面向深度對焦</h2><span class="section-badge">共 5 題</span></div>
+        <div id="render-sec5"></div>
+      </section>
+
+      <section class="section-card" id="sec-inspire">
+        <div class="section-head"><h2>💡 人格特質與心理學詞彙靈感庫</h2><span class="section-badge">參考詞庫</span></div>
+        <div id="render-inspire"></div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="bottom-dock">
+    <div class="dock-status"><span class="status-dot"></span><span id="dockStatus">已即時自動儲存至本機</span></div>
+    <div class="btn-group">
+      <button class="btn" onclick="exportHTML()">🌐 匯出含填答的獨立 HTML</button>
+      <button class="btn btn-primary" onclick="exportExcel()">💾 下載填答 Excel (.xlsx)</button>
+    </div>
+  </footer>
+
+  <div class="modal-backdrop" id="inspireModal" onclick="closeModal(event, 'inspireModal')">
+    <div class="
